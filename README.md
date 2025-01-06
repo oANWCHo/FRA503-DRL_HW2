@@ -102,6 +102,10 @@ For more detail of different workflows for designing environments. [[link](https
 
     4.2 `Creating a Manager-Based RL Environment` [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/03_envs/create_manager_rl_env.html)]
 
+    4.3 `Registering an Environment` [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/03_envs/register_rl_env_gym.html#registering-an-environment)]
+
+    4.4 `Training with an RL Agent` [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/03_envs/run_rl_training.html#training-with-an-rl-agent)]
+
 ### [Optional]
 
 5. Integrating Sensors [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#integrating-sensors)]
