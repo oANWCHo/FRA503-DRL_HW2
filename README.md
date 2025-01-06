@@ -24,7 +24,13 @@ Close and re-open your terminal window for the installation to fully take effect
 source ~/.bashrc
 ```
 
+### Verifying the Miniconda installation
+
 Test your installation by running `conda list`. If conda has been installed correctly, a list of installed packages appears.
+
+![alt text](image-1.png)
+
+If you see this, then the installation was successful! 🎉
 
 ## Installing Isaac Sim & Isaac Lab
 
@@ -56,9 +62,9 @@ If you see this, then the installation was successful! 🎉
 
 For more understanding of IsaacLab you can go through Isaac Lab Overview.
 
-### Developer’s Guide [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)]
-### Core Concepts [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/index.html)]
-### Sensors [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/index.html)]
+1. Developer’s Guide [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)]
+2. Core Concepts [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/index.html)]
+3. Sensors [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/index.html)]
 
 ## Available Environments
 
@@ -71,6 +77,8 @@ you can excute following command line
 ```
 python source/standalone/environments/list_envs.py
 ```
+
+![alt text](image-2.png)
 
 ## Tutorials
 
