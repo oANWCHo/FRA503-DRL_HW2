@@ -1,5 +1,7 @@
 # FRA503 Deep Reinforcement Learning for Robotics
 
+# Instruction
+
 ## Recommend using [Miniconda](https://docs.anaconda.com/miniconda/install/#quick-command-line-install)
 
 Download Miniconda different version, IsaacLab using python version 3.10 [[list of Miniconda](https://repo.anaconda.com/miniconda)].
