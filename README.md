@@ -68,7 +68,7 @@ For more understanding of IsaacLab you can go through Isaac Lab Overview.
 
 ## Available Environments
 
-The following lists comprises of all the RL tasks implementations that are available in Isaac Lab. [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html)]
+The following lists comprises of all the `RL tasks` implementations that are available in Isaac Lab. [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/environments.html)]
 
 or
 
@@ -106,11 +106,6 @@ For more detail of different workflows for designing environments. [[link](https
 
     4.4 `Training with an RL Agent` [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/03_envs/run_rl_training.html#training-with-an-rl-agent)]
 
-### [Optional]
-
-5. Integrating Sensors [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#integrating-sensors)]
-
-6. Using motion generators [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#using-motion-generators)]
 
 ## How-to Guides [Optional]
 
