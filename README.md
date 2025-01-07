@@ -58,13 +58,13 @@ python source/standalone/tutorials/00_sim/create_empty.py
 If you see this, then the installation was successful! 🎉
 
 
-## Isaac Lab Overview [Optional]
+## Isaac Lab Overview 
 
 For more understanding of IsaacLab you can go through Isaac Lab Overview.
 
-1. Developer’s Guide [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)]
-2. Core Concepts [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/index.html)]
-3. Sensors [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/index.html)]
+1. **Core Concepts** [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/index.html)]
+2. **Developer’s Guide** [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)] 
+3. **Sensors** [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/index.html)]
 
 ## Available Environments
 
@@ -86,8 +86,18 @@ We recommend that you go through the tutorials in the order they are listed here
 
 ### Simulation Overview 
 
-1. Setting up a Simple Simulation [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#setting-up-a-simple-simulation)]
-2. Interacting with Assets [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#interacting-with-assets)]
+1. Setting up a Simple Simulation 
+
+    1.1 Creating an empty scene [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/00_sim/create_empty.html)] -> basic understanding of how to run a simulation.
+
+    1.2 Spawning prims into the scene [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/00_sim/spawn_prims.html)] -> foundation for spawning various prims into the scene in Isaac Lab.
+
+    1.3 Deep-dive into AppLauncher [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/00_sim/launch_app.html)]
+
+2. Interacting with Assets 
+
+    2.1 Interacting with a rigid object [[link]()]
+
 3. Creating a Scene [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#creating-a-scene)]
 
 ### Task Design Workflows
