@@ -86,7 +86,7 @@ We recommend that you go through the tutorials in the order they are listed here
 
 ### Simulation Overview 
 
-1. Setting up a Simple Simulation 
+1. **Setting up a Simple Simulation** 
 
     1.1 Creating an empty scene [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/00_sim/create_empty.html)] 
 
@@ -94,13 +94,13 @@ We recommend that you go through the tutorials in the order they are listed here
 
     1.3 Deep-dive into AppLauncher [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/00_sim/launch_app.html)] 
 
-2. Interacting with Assets 
+2. **Interacting with Assets** 
 
     2.1 Interacting with a rigid object [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/01_assets/run_rigid_object.html)]
 
     2.2 Interacting with an articulation [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/01_assets/run_articulation.html)]
 
-3. Creating a Scene 
+3. **Creating a Scene**
 
     3.1 Using the Interactive Scene [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/02_scene/create_scene.html)]
 
@@ -108,7 +108,7 @@ We recommend that you go through the tutorials in the order they are listed here
 
 For more detail of different workflows for designing environments. [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/task_workflows.html)]
 
-4. Designing an Environment [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#designing-an-environment)]
+4. **Designing an Environment** [[link](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/index.html#designing-an-environment)]
 
     `HW0 Requirement`: You need to understand `Creating a Manager-Based Base Environment` and `Creating a Manager-Based RL Environment` for designing an environment.
 
