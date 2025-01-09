@@ -30,6 +30,7 @@ Part 1: Take a Look at `Cartpole` Rl Agent
 ---
 
 **Cartpole** is a fundamental example of an inverted pendulum, consisting of a pole with its center of gravity above the pivot point, which is attached to a cart. Despite its inherent instability in most configurations, it can be controlled by moving the cart along a frictionless track. In the `Cartpole-v0` environment, the pole starts in a position perpendicular to the ground, and the objective is to maintain this upright position by applying appropriate forces to the cart.
+
 ![](cartpole.png)
 
 ### Train the `Cartpole` RL Agent
