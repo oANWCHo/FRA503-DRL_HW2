@@ -62,9 +62,12 @@ If you see this, then the installation was successful! 🎉
 
 For more understanding of IsaacLab you can go through Isaac Lab Overview.
 
-1. **Core Concepts** [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/index.html)]
+1. **Core Concepts** 
+    
+    1.1. Task Design Workflows [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/task_workflows.html)]
+    
+    
 2. **Developer’s Guide** [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)] 
-3. **Sensors** [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/index.html)]
 
 ## Available Environments
 
@@ -83,6 +86,8 @@ python source/standalone/environments/list_envs.py
 ## Tutorials
 
 We recommend that you go through the tutorials in the order they are listed here.
+
+*Note: There is no need to follow the order of the tutorial in page via 'next' button.*
 
 ### Simulation Overview 
 
