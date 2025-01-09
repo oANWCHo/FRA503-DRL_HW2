@@ -1,8 +1,8 @@
 # Homework 0
 
-After you have done following [instruction](https://github.com/S-Tuchapong/FRA503-Deep-Reinforcement-Learning-for-Robotics) let continue on to HW part.
+After you have done following [instruction](https://github.com/S-Tuchapong/FRA503-Deep-Reinforcement-Learning-for-Robotics), let us proceed to the homework section.
 
-For the first homework, we will look at an ideal RL example: training an agent to solve the classic `Cartpole` control problem. The objective of this homework is to provide an overview of RL components and the basic concept of how each component is relate to each other.
+For the first homework, we will explore an *ideal* reinforcement learning (RL) example: training an agent to solve the classic `Cartpole` control problem. The objective of this homework is to provide an overview of RL components and the fundamental concepts of how these components relate to one another.
 
 ### Learning Objectives:
 
@@ -29,9 +29,7 @@ For the first homework, we will look at an ideal RL example: training an agent t
 Part 1: Take a Look at `Cartpole` Rl Agent
 ---
 
-**Cartpole** is a basic example of an inverted pandulum which consists a pendulum (pole) with a center of gravity above its pivot point (cart). Beside its naturally unstable in the most configuration, 
-it can be controlled by moving the cart along the frictionless track. In `Cartpole-v0` environment, the pole is initially parpendicular to the ground, the goal is to keep 
-the pole parpendicular to the ground by applying appropriate forces to the cart.
+**Cartpole** is a fundamental example of an inverted pendulum, consisting of a pole with its center of gravity above the pivot point, which is attached to a cart. Despite its inherent instability in most configurations, it can be controlled by moving the cart along a frictionless track. In the `Cartpole-v0` environment, the pole starts in a position perpendicular to the ground, and the objective is to maintain this upright position by applying appropriate forces to the cart.
 ![](cartpole.png)
 
 ### Train the `Cartpole` RL Agent
