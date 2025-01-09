@@ -60,14 +60,57 @@ If you see this, then the installation was successful! 🎉
 
 ## Isaac Lab Overview 
 
-For more understanding of IsaacLab you can go through Isaac Lab Overview.
+This overview introduces **key concepts** in IsaacLab. Focus on the `[link]` required for this class. 
+
+`Optional` sections provide deeper understanding - read these or explore the full IsaacLab documentation based on your interests. 
+
+After reading each section, you should be able to answer these `guiding questions`:
 
 1. **Core Concepts** 
+
+    1.1 Task Design Workflows [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/task_workflows.html#task-design-workflows)] 
     
-    1.1. Task Design Workflows [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/task_workflows.html)]
+    -  What is the different between `Manager-based` and `Direct` workflows? 
     
+    - If you're just starting to use `IsaacLab`, which workflow should you choose?
+
+    1.2 Actuators [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/core-concepts/actuators.html#actuators)]
+
+    - How does the physics engine handle `position` and `velocity` control differently from `torque` control?
+
+    - What limitation exists when simulating actuators compared to real-world robot behavior?
+
+2. **Developer’s Guide**  
     
-2. **Developer’s Guide** [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/index.html)] 
+    2.1 Setting up Visual Studio Code [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/vs_code.html#setting-up-visual-studio-code)]
+
+    - How to setup VS Code IDE for `debugging` python code?
+
+    - How to use different `python interpreters`?
+
+    2.2 Repository organization [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/repo_structure.html#repository-organization)]
+
+    - How to find source code for all Isaac Lab `extensions` and `standalone applications`?
+
+    -  What is the different between `extensions` and `standalone applications`? 
+
+    2.3 Application Development [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/development.html#application-development)]
+
+    - Why do scripts need to be structured as `extensions` and `standalone applications`?
+
+    2.4 Building your Own Project [Optional] [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/developer-guide/template.html#building-your-own-project)]
+
+3. **Sensors** [Optional] 
+
+    This section provides an overview of the `sensor APIs` available in Isaac Lab.
+
+    3.1 Camera [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/camera.html#camera)]
+
+    3.2 Contact Sensor [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/contact_sensor.html#contact-sensor)]
+
+    3.3 Frame Transformer [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/frame_transformer.html#frame-transformer)]
+
+    3.4 Ray Caster [[link](https://isaac-sim.github.io/IsaacLab/main/source/overview/sensors/ray_caster.html#ray-caster)]
 
 ## Available Environments
 
@@ -87,7 +130,7 @@ python source/standalone/environments/list_envs.py
 
 We recommend that you go through the tutorials in the order they are listed here.
 
-*Note: There is no need to follow the order of the tutorial in page via 'next' button.*
+*Note: There is no need to follow the order of the tutorial in page via `next` button.*
 
 ### Simulation Overview 
 
