@@ -41,7 +41,7 @@ According to the [Training with an RL Agent Tutorial](https://isaac-sim.github.i
 Note that you can adjust the video length and the interval between each records by specifying the parameters `--video_length` and `--video_interval` respectively. For more information, please check the [Recording video clips during training Guide](https://isaac-sim.github.io/IsaacLab/main/source/how-to/record_video.html).
 
 ### Visualize the Training Results
-The mean of the episode cummulative reward (return) and the episode length from the first one hundred terminated agent with respect to the timesteps can be observed using `tensorboard` using following command
+The mean of the episode cumulative reward (return) and the episode length for the first one hundred terminated agents with respect to the timesteps can be observed using `TensorBoard` by executing the following command:
 
     python -m tensorboard.main --logdir logs/sb3/Isaac-Cartpole-v0
 
