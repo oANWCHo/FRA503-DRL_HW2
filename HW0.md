@@ -69,11 +69,11 @@ Part 3: Mapping RL Fundamentals
 
 Submit the answers to the following questions:
 
-- What is reinforcement learning and its components according to your understanding? Giving examples of each component according to the diagram consider the `Cartpole` problem.
+1. What is reinforcement learning and its components according to your understanding? Giving examples of each component according to the diagram consider the `Cartpole` problem.
 
-- What is the difference between the reward, return, and the value function?
+2. What is the difference between the reward, return, and the value function?
 
-- Consider policy, state, value function, and model as mathematical functions, what would each one take as input and output? 
+3. Consider policy, state, value function, and model as mathematical functions, what would each one take as input and output? 
 
 
 
