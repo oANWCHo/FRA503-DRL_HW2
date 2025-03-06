@@ -8,10 +8,10 @@ The repository provided in this homework is a custom IsaacLab extension, created
 
 ## Installation
 
-- Clone the repository separately from the Isaac Lab installation (i.e. outside the IsaacLab directory):
+- navigate to the `CartPole_4.5.0/` directory by running:
 
     ```
-    git clone https://github.com/S-Tuchapong/CartPole.git
+    cd CartPole_4.5.0/
     ```
 - Using a python interpreter (conda) that has Isaac Lab installed, install the library
 
@@ -22,7 +22,7 @@ The repository provided in this homework is a custom IsaacLab extension, created
 - Verify that the extension is correctly installed by running the following command to print all the available environments in the extension:
 
     ```
-    python scripts/tools/list_envs.py
+    python scripts/list_envs.py
     ```
 ## Repository organization
 This repository is an IsaacLab extension for training reinforcement learning (RL) agents on the CartPole task. It includes environment configurations, RL algorithms, and training scripts.
