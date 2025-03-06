@@ -31,7 +31,7 @@ Part 1: Take a Look at `Cartpole` Rl Agent
 
 **Cartpole** is a fundamental example of an inverted pendulum, consisting of a pole with its center of gravity above the pivot point, which is attached to a cart. Despite its inherent instability in most configurations, it can be controlled by moving the cart along a frictionless track. In the `Cartpole-v0` environment, the pole starts in a position perpendicular to the ground, and the objective is to maintain this upright position by applying appropriate forces to the cart.
 
-![](cartpole.png)
+![cartpole](https://github.com/user-attachments/assets/69bcf6ea-04c3-4bf1-ace1-a2b8c03ac8ff)
 
 ### Train the `Cartpole` RL Agent
 According to the [Training with an RL Agent Tutorial](https://isaac-sim.github.io/IsaacLab/main/source/tutorials/03_envs/run_rl_training.html#training-with-an-rl-agent), the `Cartpole` RL Agent can be headlessly train with off-screen rendering by running the following command in the `IsaacLab` directory
@@ -65,7 +65,8 @@ You may further explore by modifying other aspects, such as the agent's action s
 
 Part 3: Mapping RL Fundamentals
 ---
-![](image-4.png)
+
+![image-4](https://github.com/user-attachments/assets/7ae8a960-6c0d-4593-a905-49e102132291)
 
 Submit the answers to the following questions:
 

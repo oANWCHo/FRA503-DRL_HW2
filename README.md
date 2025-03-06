@@ -28,7 +28,7 @@ source ~/.bashrc
 
 Test your installation by running `conda list`. If conda has been installed correctly, a list of installed packages appears.
 
-![alt text](image-1.png)
+![image-1](https://github.com/user-attachments/assets/5811a5ee-3026-4fe0-b0f7-1fc26899c125)
 
 If you see this, then the installation was successful! 🎉
 
@@ -53,7 +53,7 @@ Follow the Installing and Verifying steps [[link](https://isaac-sim.github.io/Is
 python source/standalone/tutorials/00_sim/create_empty.py
 ```
 
-![alt text](image.png)
+![image](https://github.com/user-attachments/assets/07c74fe4-97c1-4a4d-a4e4-8e6b4f51b38c)
 
 If you see this, then the installation was successful! 🎉
 
@@ -124,7 +124,7 @@ you can excute following command line
 python source/standalone/environments/list_envs.py
 ```
 
-![alt text](image-2.png)
+![image-2](https://github.com/user-attachments/assets/9f5f0ac4-7c38-4378-b3da-a74caf90bac9)
 
 ## Tutorials
 
