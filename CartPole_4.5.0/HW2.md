@@ -22,7 +22,7 @@ The `CartPole` extension repository also provides the configuration for the **Sw
 
 ### Part 1: Setting up `Cart-Pole` Agent.
 
-For the first part of this homework, you will implement a Cart-Pole agent from scratch. The core components should include, but are not limited to:
+For the first part of this homework, you will implement a Cart-Pole agent from scratch, i.e., you must implement the **constructor** and **core functions** of the `RL Base Class`, as well as the **algorithms** in the Algorithm folder. The core components should include, but are not limited to:
 
 #### 1. RL Base class
 
