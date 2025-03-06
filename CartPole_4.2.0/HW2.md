@@ -2,7 +2,7 @@
 
 ## Cart Pole [ HW2 ]
 
-After following the `Cart-Pole` [instruction](https://github.com/S-Tuchapong/CartPole), you are now ready to proceed with the homework.
+After following the `Cart-Pole` [instruction](https://github.com/S-Tuchapong/FRA503-Deep-Reinforcement-Learning-for-Robotics/tree/main/CartPole_4.2.0), you are now ready to proceed with the homework.
 
 In this homework, students will work on the **Stabilizing Cart-Pole Task**, where the goal is to train the agent with learning algorithms (i.e. Q-Learning, Monte-Carlo, Temporal Difference Learning, and Double Q-Learning) to control a cart moving along a frictionless track to keep a pole balanced. The pole starts near an upright position (close to 90° vertical), and the agent must apply the right forces to the cart to prevent it from tipping over. The challenge is to stabilize the system while minimizing unnecessary movement. The episode ends if the pole leans too far or the cart moves too far from the center.
 
