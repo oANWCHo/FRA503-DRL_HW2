@@ -179,9 +179,9 @@ class Stabilize_CartpoleEnvCfg(ManagerBasedRLEnvCfg):
         """Post initialization."""
         # general settings
         self.decimation = 2
-        self.episode_length_s = 5
+        self.episode_length_s = 10
         # viewer settings
         self.viewer.eye = (8.0, 0.0, 5.0)
         # simulation settings
-        self.sim.dt = 1 / 120
+        self.sim.dt = 0.005
         self.sim.render_interval = self.decimation

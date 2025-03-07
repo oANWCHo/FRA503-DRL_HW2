@@ -180,5 +180,5 @@ class SwingUP_CartpoleEnvCfg(ManagerBasedRLEnvCfg):
         # viewer settings
         self.viewer.eye = (8.0, 0.0, 5.0)
         # simulation settings
-        self.sim.dt = 0.005  # 1 / 120
+        self.sim.dt = 0.005  
         self.sim.render_interval = self.decimation
