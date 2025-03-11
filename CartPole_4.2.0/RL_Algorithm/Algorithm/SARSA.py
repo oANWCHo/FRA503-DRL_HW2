@@ -28,7 +28,7 @@ class SARSA(BaseAlgorithm):
             discount_factor (float): Discount factor for future rewards.
         """
         super().__init__(
-            control_type=ControlType.SARSA,
+            control_type=ControlType.TEMPORAL_DIFFERENCE,
             num_of_action=num_of_action,
             action_range=action_range,
             discretize_state_weight=discretize_state_weight,
@@ -39,13 +39,22 @@ class SARSA(BaseAlgorithm):
             discount_factor=discount_factor,
         )
         
-    def update(
-        self,
-
-    ):
+    def update(self, state, action, reward, next_state, next_action):
         """
-        Update Q-values using SARSA .
+        Update Q-values using SARSA.
 
-        This method applies the SARSA update rule to improve policy decisions by updating the Q-table.
+        Args:
+            state (tuple): Current state (discretized).
+            action (int): Action taken.
+            reward (float): Reward received.
+            next_state (tuple): Next state after taking action.
+            next_action (int): Next action selected by policy.
         """
-        pass
+        q_current = self.q_values[state][action]
+        q_next = self.q_values[next_state][next_action] if next_state is not None else 0  # Handle terminal state
+        
+        # Correct SARSA Update Rule
+        self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_current)
+        
+        # Decay epsilon
+        self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
