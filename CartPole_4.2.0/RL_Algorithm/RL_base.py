@@ -132,7 +132,8 @@ class BaseAlgorithm():
         """
         # ========= put your code here =========#
         action_min, action_max = self.action_range
-        return action_min + (action / (self.num_of_action - 1)) * (action_max - action_min)
+        action_continuous = action_min + (action / (self.num_of_action - 1)) * (action_max - action_min)
+        return torch.tensor(action_continuous)
         # ======================================#
 
     def get_action(self, obs) -> torch.tensor:
@@ -147,13 +148,16 @@ class BaseAlgorithm():
         """
         obs_dis = self.discretize_state(obs)
         action_idx = self.get_discretize_action(obs_dis)
-        action_tensor = self.mapping_action(action_idx)
-        return action_tensor, action_idx
+        action_tensor = torch.tensor(self.mapping_action(action_idx), dtype=torch.int)
+        # action_tensor = torch.tensor(self.mapping_action(action_idx))
+       
+        return action_tensor, int(action_idx)
     
     def decay_epsilon(self):
         """
         Decay epsilon value to reduce exploration over time.
         """
+        self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
 
     def save_q_value(self, path, filename):
         """

@@ -43,12 +43,7 @@ class SARSA(BaseAlgorithm):
         """
         Update Q-values using SARSA.
 
-        Args:
-            state (tuple): Current state (discretized).
-            action (int): Action taken.
-            reward (float): Reward received.
-            next_state (tuple): Next state after taking action.
-            next_action (int): Next action selected by policy.
+        This method applies the SARSA update rule to improve policy decisions by updating the Q-table.    
         """
         q_current = self.q_values[state][action]
         q_next = self.q_values[next_state][next_action] if next_state is not None else 0  # Handle terminal state
@@ -56,5 +51,5 @@ class SARSA(BaseAlgorithm):
         # Correct SARSA Update Rule
         self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_current)
         
-        # Decay epsilon
-        self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
+        # Use decay_epsilon function
+        # self.decay_epsilon()

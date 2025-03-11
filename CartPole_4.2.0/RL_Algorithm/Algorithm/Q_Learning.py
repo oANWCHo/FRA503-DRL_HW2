@@ -2,7 +2,6 @@ from __future__ import annotations
 import numpy as np
 from RL_Algorithm.RL_base import BaseAlgorithm, ControlType
 
-
 class Q_Learning(BaseAlgorithm):
     def __init__(
             self,
@@ -40,13 +39,16 @@ class Q_Learning(BaseAlgorithm):
             discount_factor=discount_factor,
         )
         
-    def update(
-        self,
-
-    ):
+    def update(self, state, action, reward, next_state):
         """
         Update Q-values using Q-Learning.
 
         This method applies the Q-Learning update rule to improve policy decisions by updating the Q-table.
         """
-        pass
+        q_value = self.q_values[state][action]
+        q_next = 0 if next_state is None else np.max(self.q_values[next_state]) 
+        
+        self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_value)
+
+        # Use decay_epsilon function
+        # self.decay_epsilon()
