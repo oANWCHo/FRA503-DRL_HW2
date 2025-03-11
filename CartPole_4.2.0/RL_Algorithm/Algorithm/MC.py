@@ -48,4 +48,17 @@ class MC(BaseAlgorithm):
 
         This method applies the Monte Carlo update rule to improve policy decisions by updating the Q-table.
         """
-        pass
+        return_sum = 0 
+
+        # update First occur
+        for t in reversed(range(len(self.obs_hist))):
+            state = self.obs_hist[t]
+            action = self.action_hist[t]
+            reward = self.reward_hist[t]
+            return_sum = self.discount_factor * return_sum + reward  # Compute return
+            
+            if state not in self.obs_hist[:t]:  # First-visit MC update
+                self.n_values[state][action] += 1
+                self.q_values[state][action] += (return_sum - self.q_values[state][action]) / self.n_values[state][action]
+
+        
