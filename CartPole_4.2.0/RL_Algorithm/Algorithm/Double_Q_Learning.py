@@ -39,13 +39,13 @@ class Double_Q_Learning(BaseAlgorithm):
             discount_factor=discount_factor,
         )
         
-    def update(self, state, action, reward, next_state, threshold = 0.5):
+    def update(self, state, action, reward, next_state):
         """
         Update Q-values using Double Q-Learning.
 
         This method applies the Double Q-Learning update rule to improve policy decisions by updating the Q-table.
         """
-        if np.random.rand() < threshold:
+        if np.random.rand() < 0.5:
         # Update Q_A using Q_B
             best_next_action = np.argmax(self.qa_values[next_state]) if next_state is not None else 0
             q_next = self.qb_values[next_state][best_next_action] if next_state is not None else 0
