@@ -10,8 +10,9 @@ from omni.isaac.lab.app import AppLauncher
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from RL_Algorithm.Algorithm.Q_Learning import Q_Learning
+from RL_Algorithm.Algorithm.MC import MC
 from tqdm import tqdm
+import torch
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -70,6 +71,9 @@ torch.backends.cudnn.benchmark = False
 
 @hydra_task_config(args_cli.task, "sb3_cfg_entry_point")
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: RslRlOnPolicyRunnerCfg):
+
+    # device = pose_cart_clip.device
+
     """Train with stable-baselines agent."""
     # randomly sample a seed if seed = -1
     if args_cli.seed == -1:
@@ -83,9 +87,23 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env_cfg.seed = agent_cfg["seed"]
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
 
+    # directory for logging into
+    log_dir = os.path.join("logs", "sb3", args_cli.task, datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
 
+    # wrap for video recording
+    if args_cli.video:
+        video_kwargs = {
+            "video_folder": os.path.join(log_dir, "videos", "train"),
+            "step_trigger": lambda step: step % args_cli.video_interval == 0,
+            "video_length": args_cli.video_length,
+            "disable_logger": True,
+        }
+        print("[INFO] Recording videos during training.")
+        print_dict(video_kwargs, nesting=4)
+        env = gym.wrappers.RecordVideo(env, **video_kwargs)
     # ==================================================================== #
     # ========================= Can be modified ========================== #
 
@@ -101,7 +119,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     discount = 0.99
 
     # editable agent
-    agent = Q_Learning(
+    agent = MC(
         num_of_action=num_of_action,
         action_range=action_range,
         discretize_state_weight=discretize_state_weight,
@@ -123,12 +141,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         
             for episode in tqdm(range(n_episodes)):
                 obs, _ = env.reset()
+
                 done = False
                 cumulative_reward = 0
 
                 while not done:
+
+                    state = agent.discretize_state(obs)
+
                     # agent stepping
                     action, action_idx = agent.get_action(obs)
+                    # print('action',action)
 
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
@@ -138,8 +161,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     cumulative_reward += reward_value
                     
                     # editable agent update
-                    agent.update(agent.discretize_state(obs), action, reward, agent.discretize_state(next_obs))
-
+                    agent.update()  #edit here
 
                     done = terminated or truncated
                     obs = next_obs

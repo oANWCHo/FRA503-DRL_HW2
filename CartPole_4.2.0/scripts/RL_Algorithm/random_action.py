@@ -105,6 +105,7 @@ def main():
 
                 while not done:
                     action = random_scaled_tensor(10)
+                    print('action ',action)
                     
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)

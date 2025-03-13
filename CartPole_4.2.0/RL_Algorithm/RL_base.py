@@ -92,12 +92,17 @@ class BaseAlgorithm():
         Returns:
             Tuple[pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]: Discretized state.
         """
-
+        required_keys = ['pose_cart', 'pose_pole', 'vel_cart', 'vel_pole']
+        # for key in required_keys:
+            # if key not in obs:
+            #     raise KeyError(f"Missing key in observation: {key}")
+        # print('obs',obs)
+            
         # ========= put your code here =========#
-        pose_cart = int(obs['pose_cart'] * self.discretize_state_weight[0])
-        pose_pole = int(obs['pose_pole'] * self.discretize_state_weight[1])
-        vel_cart = int(obs['vel_cart'] * self.discretize_state_weight[2])
-        vel_pole = int(obs['vel_pole'] * self.discretize_state_weight[3])
+        pose_cart = int(obs.get('pose_cart',0) * self.discretize_state_weight[0])
+        pose_pole = int(obs.get('pose_pole',0) * self.discretize_state_weight[1])
+        vel_cart = int(obs.get('vel_cart',0) * self.discretize_state_weight[2])
+        vel_pole = int(obs.get('vel_pole',0) * self.discretize_state_weight[3])
         
         return (pose_cart, pose_pole, vel_cart, vel_pole)
         # ======================================#
@@ -147,11 +152,26 @@ class BaseAlgorithm():
             torch.Tensor, int: Scaled action tensor and chosen action index.
         """
         obs_dis = self.discretize_state(obs)
-        action_idx = self.get_discretize_action(obs_dis)
-        action_tensor = torch.tensor(self.mapping_action(action_idx), dtype=torch.int)
-        # action_tensor = torch.tensor(self.mapping_action(action_idx))
+        action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
+
+        # Ensure action_idx is a single scalar before passing to mapping_action
+        action_scalar = action_idx.item() if action_idx.numel() == 1 else action_idx
+
+        # Ensure action is a 2D tensor of shape (1,1)
+        action_value = self.mapping_action(action_scalar)
+
+        if isinstance(action_value, torch.Tensor):
+            action_tensor = action_value.view(1, 1)  # Ensure shape (1,1)
+        else:
+            action_tensor = torch.tensor([[action_value]], dtype=torch.float32)
+
+        # print(f"Action: {action_tensor}, Shape: {action_tensor.shape}")  # Debugging
+
+        return action_tensor, action_idx
+
        
-        return action_tensor, int(action_idx)
+
+        return action_tensor, action_idx  
     
     def decay_epsilon(self):
         """
