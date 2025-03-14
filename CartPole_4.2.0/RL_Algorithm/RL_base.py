@@ -99,6 +99,7 @@ class BaseAlgorithm():
         # print('obs',obs)
             
         # ========= put your code here =========#
+        #not sure
         pose_cart = int(obs.get('pose_cart',0) * self.discretize_state_weight[0])
         pose_pole = int(obs.get('pose_pole',0) * self.discretize_state_weight[1])
         vel_cart = int(obs.get('vel_cart',0) * self.discretize_state_weight[2])
@@ -173,11 +174,11 @@ class BaseAlgorithm():
 
         return action_tensor, action_idx  
     
-    def decay_epsilon(self):
+    def decay_epsilon(self, episode):
         """
         Decay epsilon value to reduce exploration over time.
         """
-        self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
+        self.epsilon = max(self.final_epsilon, self.epsilon * (self.epsilon_decay ** episode))
 
     def save_q_value(self, path, filename):
         """

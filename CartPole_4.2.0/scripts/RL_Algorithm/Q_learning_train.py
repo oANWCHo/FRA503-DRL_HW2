@@ -17,8 +17,8 @@ import torch
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=2000, help="Interval between video recordings (in steps).")
+parser.add_argument("--video_length", type=int, default=50, help="Length of the recorded video (in steps).")
+parser.add_argument("--video_interval", type=int, default=5000, help="Interval between video recordings (in steps).") # Fixed video_interval
 parser.add_argument("--num_envs", type=int, default=1, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -109,15 +109,38 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 2
-    action_range = [-1, 1]  # [min, max]
-    discretize_state_weight = [10, 10, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    num_of_action = 5
+    action_range = [-2, 2]  # [min, max]
+    discretize_state_weight = [1, 0, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
     learning_rate = 0.1
-    n_episodes = 10000
+    n_episodes = 100
     start_epsilon = 1.0
     epsilon_decay = 0.995 # reduce the exploration over time
     final_epsilon = 0.1
     discount = 0.99
+
+    data = {
+        "num_of_action": num_of_action,
+        "action_range": action_range,
+        "discretize_state_weight": discretize_state_weight,
+        "learning_rate": learning_rate,
+        "n_episodes": n_episodes,
+        "start_epsilon": start_epsilon,
+        "epsilon_decay": epsilon_decay,
+        "final_epsilon": final_epsilon,
+        "discount": discount
+    }
+
+    # Generate filename dynamically
+    filename = (f"ac_{num_of_action}_"
+                f"ar_{'_'.join(map(str, action_range))}_"
+                f"dsw_{'_'.join(map(str, discretize_state_weight))}_"
+                f"lr_{learning_rate}_"
+                f"ep_{n_episodes}_"
+                f"se_{start_epsilon}_"
+                f"ed_{epsilon_decay}_"
+                f"fe_{final_epsilon}_"
+                f"disc_{discount}.json").replace(" ", "")
 
     # editable agent
     agent = Q_Learning(
@@ -142,7 +165,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         
             for episode in tqdm(range(n_episodes)):
                 obs, _ = env.reset()
-
                 done = False
                 cumulative_reward = 0
 
@@ -161,6 +183,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     reward_value = reward.item()
                     terminated_value = terminated.item() 
+
                     cumulative_reward += reward_value
                     
                     # editable agent update
@@ -168,19 +191,22 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     done = terminated or truncated
                     obs = next_obs
+
+                    # print('state :' , state, 'action_idx', action, 'reward :', reward_value,'Next state ',next_state)
                 
                 sum_reward += cumulative_reward
                 if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
                     print(agent.epsilon)
-                agent.decay_epsilon()
+
+                agent.decay_epsilon(episode)
             
             # Save Q-Learning agent
             Algorithm_name = "Q_Learning"
-            q_value_file = "name.json"
-            full_path = os.path.join("q_value", Algorithm_name)
-            agent.save_q_value(full_path, q_value_file)
+            # q_value_file = "name.json"
+            full_path = os.path.join("q_value/Stabilize", Algorithm_name)
+            agent.save_q_value(full_path, filename)
             
         if args_cli.video:
             timestep += 1
@@ -189,6 +215,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 break
         
         print("!!! Training is complete !!!")
+
         break
     # ==================================================================== #
 

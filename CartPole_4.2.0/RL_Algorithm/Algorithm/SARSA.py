@@ -46,10 +46,7 @@ class SARSA(BaseAlgorithm):
         This method applies the SARSA update rule to improve policy decisions by updating the Q-table.    
         """
         q_current = self.q_values[state][action]
-        q_next = self.q_values[next_state][next_action] if next_state is not None else 0  # Handle terminal state
+        q_next = self.q_values[next_state][next_action] if next_state is not None else 0  
         
-        # Correct SARSA Update Rule
-        self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_current)
+        self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_current) # TD that change to state action value
         
-        # Use decay_epsilon function
-        # self.decay_epsilon()
