@@ -16,7 +16,7 @@ class BaseAlgorithm():
         control_type: ControlType,
         num_of_action: int,
         action_range: list,  # [min, max]
-        discretize_state_bins: list,  # [bins for pose_cart, pose_pole, vel_cart, vel_pole]
+        discretize_state_weight: list,  # [bins for pose_cart, pose_pole, vel_cart, vel_pole]
         learning_rate: float,
         initial_epsilon: float,
         epsilon_decay: float,
@@ -35,10 +35,10 @@ class BaseAlgorithm():
 
         # Define bins as torch tensors for discretization
         self.bins = [
-            torch.linspace(-2.4, 2.4, discretize_state_bins[0]),  # pose_cart bins
-            torch.linspace(-0.209, 0.209, discretize_state_bins[1]),  # pose_pole bins
-            torch.linspace(-2, 2, discretize_state_bins[2]),  # vel_cart bins
-            torch.linspace(-2, 2, discretize_state_bins[3])  # vel_pole bins
+            torch.linspace(-2.4, 2.4, discretize_state_weight[0]),  # pose_cart bins
+            torch.linspace(-0.209, 0.209, discretize_state_weight[1]),  # pose_pole bins
+            torch.linspace(-2, 2, discretize_state_weight[2]),  # vel_cart bins
+            torch.linspace(-2, 2, discretize_state_weight[3])  # vel_pole bins
         ]
 
         self.q_values = defaultdict(lambda: torch.zeros(self.num_of_action))
