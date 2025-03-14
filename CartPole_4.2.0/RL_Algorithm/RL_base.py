@@ -1,15 +1,9 @@
-import numpy as np
+import torch
 from collections import defaultdict
 from enum import Enum
-import os
-import json
-import torch
 
 
 class ControlType(Enum):
-    """
-    Enum representing different control algorithms.
-    """
     MONTE_CARLO = 1
     TEMPORAL_DIFFERENCE = 2
     Q_LEARNING = 3
@@ -17,41 +11,12 @@ class ControlType(Enum):
 
 
 class BaseAlgorithm():
-    """
-    Base class for reinforcement learning algorithms.
-
-    Attributes:
-        control_type (ControlType): The type of control algorithm used.
-
-        num_of_action (int): Number of discrete actions available.
-
-        action_range (list): Scale for continuous action mapping.
-
-        discretize_state_scale (list): Scale factors for discretizing states.
-
-        lr (float): Learning rate for updates.
-
-        epsilon (float): Initial epsilon value for epsilon-greedy policy.
-
-        epsilon_decay (float): Rate at which epsilon decays.
-
-        final_epsilon (float): Minimum epsilon value allowed.
-
-        discount_factor (float): Discount factor for future rewards.
-
-        q_values (dict): Q-values for state-action pairs.
-
-        n_values (dict): Count of state-action visits (for Monte Carlo method).
-
-        training_error (list): Stores training errors for analysis.
-    """
-
     def __init__(
         self,
         control_type: ControlType,
         num_of_action: int,
         action_range: list,  # [min, max]
-        discretize_state_weight: list,  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+        discretize_state_bins: list,  # [bins for pose_cart, pose_pole, vel_cart, vel_pole]
         learning_rate: float,
         initial_epsilon: float,
         epsilon_decay: float,
@@ -67,10 +32,17 @@ class BaseAlgorithm():
 
         self.num_of_action = num_of_action
         self.action_range = action_range
-        self.discretize_state_weight = discretize_state_weight
 
-        self.q_values = defaultdict(lambda: np.zeros(self.num_of_action))
-        self.n_values = defaultdict(lambda: np.zeros(self.num_of_action))
+        # Define bins as torch tensors for discretization
+        self.bins = [
+            torch.linspace(-2.4, 2.4, discretize_state_bins[0]),  # pose_cart bins
+            torch.linspace(-0.209, 0.209, discretize_state_bins[1]),  # pose_pole bins
+            torch.linspace(-2, 2, discretize_state_bins[2]),  # vel_cart bins
+            torch.linspace(-2, 2, discretize_state_bins[3])  # vel_pole bins
+        ]
+
+        self.q_values = defaultdict(lambda: torch.zeros(self.num_of_action))
+        self.n_values = defaultdict(lambda: torch.zeros(self.num_of_action))
         self.training_error = []
 
         if self.control_type == ControlType.MONTE_CARLO:
@@ -78,35 +50,27 @@ class BaseAlgorithm():
             self.action_hist = []
             self.reward_hist = []
         elif self.control_type == ControlType.DOUBLE_Q_LEARNING:
-            self.qa_values = defaultdict(lambda: np.zeros(self.num_of_action))
-            self.qb_values = defaultdict(lambda: np.zeros(self.num_of_action))
+            self.qa_values = defaultdict(lambda: torch.zeros(self.num_of_action))
+            self.qb_values = defaultdict(lambda: torch.zeros(self.num_of_action))
 
     def discretize_state(self, obs: dict):
         """
-        Discretize the observation state.
+        Discretize the observation state using predefined bins.
 
         Args:
-            obs (dict): Observation dictionary containing policy states.
-
+            obs (dict): Observation dictionary.
 
         Returns:
-            Tuple[pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]: Discretized state.
+            Tuple[int, int, int, int]: Discretized state.
         """
         required_keys = ['pose_cart', 'pose_pole', 'vel_cart', 'vel_pole']
-        # for key in required_keys:
-            # if key not in obs:
-            #     raise KeyError(f"Missing key in observation: {key}")
-        # print('obs',obs)
-            
-        # ========= put your code here =========#
-        #not sure
-        pose_cart = int(obs.get('pose_cart',0) * self.discretize_state_weight[0])
-        pose_pole = int(obs.get('pose_pole',0) * self.discretize_state_weight[1])
-        vel_cart = int(obs.get('vel_cart',0) * self.discretize_state_weight[2])
-        vel_pole = int(obs.get('vel_pole',0) * self.discretize_state_weight[3])
-        
-        return (pose_cart, pose_pole, vel_cart, vel_pole)
-        # ======================================#
+        obs_tensor = torch.tensor([obs[key] for key in required_keys])
+
+        # Use torch.bucketize() to find bin indices
+        state_discretized = tuple(
+            torch.bucketize(obs_tensor[i], self.bins[i]) for i in range(len(required_keys))
+        )
+        return state_discretized
 
     def get_discretize_action(self, obs_dis) -> int:
         """
@@ -118,31 +82,26 @@ class BaseAlgorithm():
         Returns:
             int: Chosen discrete action index.
         """
-        # ========= put your code here =========#
-        if np.random.rand() < self.epsilon:
-            return np.random.randint(self.num_of_action)  # Explore
+        if torch.rand(1).item() < self.epsilon:
+            return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
         else:
-            return np.argmax(self.q_values[obs_dis])  # Exploit
-        # ======================================#
-    
+            return torch.argmax(self.q_values[obs_dis]).item()  # Exploit
+
     def mapping_action(self, action):
         """
-        Maps a discrete action in range [0, n] to a continuous value in [action_min, action_max].
+        Maps a discrete action in range [0, n] to a continuous value.
 
         Args:
             action (int): Discrete action in range [0, n]
-            n (int): Number of discrete actions
-        
+
         Returns:
             torch.Tensor: Scaled action tensor.
         """
-        # ========= put your code here =========#
         action_min, action_max = self.action_range
         action_continuous = action_min + (action / (self.num_of_action - 1)) * (action_max - action_min)
-        return torch.tensor(action_continuous)
-        # ======================================#
+        return torch.tensor(action_continuous, dtype=torch.float32)
 
-    def get_action(self, obs) -> torch.tensor:
+    def get_action(self, obs) -> torch.Tensor:
         """
         Get action based on epsilon-greedy policy.
 
@@ -155,25 +114,16 @@ class BaseAlgorithm():
         obs_dis = self.discretize_state(obs)
         action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
 
-        # Ensure action_idx is a single scalar before passing to mapping_action
         action_scalar = action_idx.item() if action_idx.numel() == 1 else action_idx
-
-        # Ensure action is a 2D tensor of shape (1,1)
         action_value = self.mapping_action(action_scalar)
 
         if isinstance(action_value, torch.Tensor):
-            action_tensor = action_value.view(1, 1)  # Ensure shape (1,1)
+            action_tensor = action_value.view(1, 1)
         else:
             action_tensor = torch.tensor([[action_value]], dtype=torch.float32)
 
-        # print(f"Action: {action_tensor}, Shape: {action_tensor.shape}")  # Debugging
-
-        return action_tensor, action_idx
-
-       
-
         return action_tensor, action_idx  
-    
+
     def decay_epsilon(self, episode):
         """
         Decay epsilon value to reduce exploration over time.
