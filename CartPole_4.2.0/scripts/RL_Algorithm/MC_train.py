@@ -131,14 +131,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     }
 
     # Generate filename dynamically
-    filename = (f"ac_{num_of_action}_"
-                f"ar_{'_'.join(map(str, action_range))}_"
-                f"dsw_{'_'.join(map(str, discretize_state_weight))}_"
-                f"lr_{learning_rate}_"
-                f"ep_{n_episodes}_"
-                f"se_{start_epsilon}_"
-                f"ed_{epsilon_decay}_"
-                f"fe_{final_epsilon}_"
+    filename = (f"ac_{num_of_action}|"
+                f"ar_{'_'.join(map(str, action_range))}|"
+                f"dsw_{'_'.join(map(str, discretize_state_weight))}|"
+                f"lr_{learning_rate}|"
+                f"ep_{n_episodes}|"
+                f"se_{start_epsilon}|"
+                f"ed_{epsilon_decay}|"
+                f"fe_{final_epsilon}|"
                 f"disc_{discount}.json").replace(" ", "")
     
     # editable agent
