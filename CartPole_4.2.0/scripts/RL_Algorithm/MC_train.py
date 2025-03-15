@@ -129,7 +129,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         "final_epsilon": final_epsilon,
         "discount": discount
     }
-
+    
     # Generate filename dynamically
     filename = (f"ac_{num_of_action}|"
                 f"ar_{'_'.join(map(str, action_range))}|"
