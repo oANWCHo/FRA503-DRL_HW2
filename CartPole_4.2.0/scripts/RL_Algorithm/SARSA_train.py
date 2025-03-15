@@ -108,16 +108,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ==================================================================== #
     # ========================= Can be modified ========================== #
 
-    # hyperparameters
-    num_of_action = 1000
-    action_range = [-1 ,1]  # [min, max]
-    discretize_state_weight = [15, 15, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.1
-    n_episodes = 100
-    start_epsilon = 1.0
-    epsilon_decay = 0.9 # reduce the exploration over time
-    final_epsilon = 0.5
-    discount = 0.99
+    # Hyperparameters
+    num_of_action = 10  # CartPole typically has 2 actions (left, right)
+    action_range = [-10, 10]  # [min, max]
+    discretize_state_weight = [2, 5, 3, 4]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.1  # Adjusted for a reasonable learning rate
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]
+      # Increased the number of episodes for better training
+    start_epsilon = 1.0  # Start with full exploration
+    epsilon_decay = 0.995  # Slower decay for epsilon, better for CartPole
+    final_epsilon = 0.05  # End with minimal exploration
+    discount = 0.99  # Standard discount factor
 
     data = {
         "num_of_action": num_of_action,
@@ -156,6 +157,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # reset environment
     obs, _ = env.reset()
+    print('obs :',obs)
+   
     timestep = 0
     sum_reward = 0
     # simulate environment
@@ -163,41 +166,42 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # run everything in inference mode
         with torch.inference_mode():
         
-            for episode in tqdm(range(n_episodes)):
+            for episode in tqdm(range(n_episodes),desc="Processing",leave=False,dynamic_ncols=True):
                 obs, _ = env.reset()
                 done = False
                 cumulative_reward = 0
 
                 while not done:
 
+    
                     state = agent.discretize_state(obs)
-
                     # agent stepping
-                    action, action_idx = agent.get_action(obs)
-                    # print('action',action)
+                    action, action_idx = agent.get_action(obs) #bro
+                    # print('action ',action,'index ', action_idx)
 
                     # env stepping
-                    next_obs, reward, terminated, truncated, _ = env.step(action)
+                    next_obs, reward, terminated, truncated, _ = env.step(action) #bro
 
                     next_state = agent.discretize_state(next_obs)
                     next_action_idx =agent.get_discretize_action(next_state)
 
-                    reward_value = reward.item()
-                    terminated_value = terminated.item() 
-                    cumulative_reward += reward_value
+                    reward_value = reward.item()#bro
+                    terminated_value = terminated.item() #bro
+                    cumulative_reward += reward_value#bro
                     
                     # editable agent update
                     agent.update(state, action_idx, reward_value, next_state,  next_action_idx)  #edit here
 
-                    done = terminated or truncated
-                    obs = next_obs
+                    done = terminated or truncated#bro
+                    obs = next_obs#bro
                 
+                # print('state ',state)
                 sum_reward += cumulative_reward
                 if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
                     print(agent.epsilon)
-                agent.decay_epsilon(episode)
+                agent.decay_epsilon(n_episodes)
             
             # Save SARSA agent
             Algorithm_name = "SARSA"

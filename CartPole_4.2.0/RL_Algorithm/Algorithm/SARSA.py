@@ -47,6 +47,7 @@ class SARSA(BaseAlgorithm):
         """
         q_current = self.q_values[state][action]
         q_next = self.q_values[next_state][next_action] if next_state is not None else 0  
+        # print('q-val',self.q_values,'\n')
         
         self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_current) # TD that change to state action value
         

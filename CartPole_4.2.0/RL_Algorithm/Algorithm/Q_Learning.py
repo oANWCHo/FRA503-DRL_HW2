@@ -1,5 +1,5 @@
 from __future__ import annotations
-import numpy as np
+import torch
 from RL_Algorithm.RL_base import BaseAlgorithm, ControlType
 
 class Q_Learning(BaseAlgorithm):
@@ -46,7 +46,8 @@ class Q_Learning(BaseAlgorithm):
         This method applies the Q-Learning update rule to improve policy decisions by updating the Q-table.
         """
         q_value = self.q_values[state][action]
-        q_next = 0 if next_state is None else np.max(self.q_values[next_state]) 
+        # q_next = 0 if next_state is None else torch.max(self.q_values[next_state]) 
+        q_next = torch.max(self.q_values[next_state]) 
         
         self.q_values[state][action] += self.lr * (reward + self.discount_factor * q_next - q_value)
 

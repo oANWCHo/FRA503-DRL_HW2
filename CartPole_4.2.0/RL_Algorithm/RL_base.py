@@ -1,7 +1,10 @@
 import torch
 from collections import defaultdict
 from enum import Enum
-
+import numpy as np
+import os
+import json
+import torch
 
 class ControlType(Enum):
     MONTE_CARLO = 1
@@ -35,11 +38,12 @@ class BaseAlgorithm():
 
         # Define bins as torch tensors for discretization
         self.bins = [
-            torch.linspace(-2.4, 2.4, discretize_state_weight[0]),  # pose_cart bins
-            torch.linspace(-0.209, 0.209, discretize_state_weight[1]),  # pose_pole bins
+            torch.linspace(-3, 3, discretize_state_weight[0]),  # pose_cart bins
+            torch.linspace(-10, 10, discretize_state_weight[1]),  # pose_pole bins
             torch.linspace(-2, 2, discretize_state_weight[2]),  # vel_cart bins
             torch.linspace(-2, 2, discretize_state_weight[3])  # vel_pole bins
         ]
+        self.discretize_state_weight =  discretize_state_weight
 
         self.q_values = defaultdict(lambda: torch.zeros(self.num_of_action))
         self.n_values = defaultdict(lambda: torch.zeros(self.num_of_action))
@@ -53,24 +57,94 @@ class BaseAlgorithm():
             self.qa_values = defaultdict(lambda: torch.zeros(self.num_of_action))
             self.qb_values = defaultdict(lambda: torch.zeros(self.num_of_action))
 
+    # def discretize_state(self, obs: dict):
+    #     """
+    #     Discretize the observation state using predefined bins.
+
+    #     Args:
+    #         obs (dict): Observation dictionary.
+
+    #     Returns:
+    #         Tuple[int, int, int, int]: Discretized state.
+    #     """
+    #     required_keys = ['pose_cart', 'pose_pole', 'vel_cart', 'vel_pole']
+
+    #     policy_tensor = obs['policy']  # tensor([[ 0.2730, -0.2406,  0.0000, -0.0000]], device='cuda:0')
+
+    #     # Extracting the four values
+    #     pose_cart = policy_tensor[0, 0].item()  # First value
+    #     pose_pole = policy_tensor[0, 1].item()  # Second value
+    #     vel_cart = policy_tensor[0, 2].item()   # Third value
+    #     vel_pole = policy_tensor[0, 3].item()   # Fourth value
+        
+    #     # Create a tensor of the values to discretize
+    #     obs_tensor = torch.tensor([pose_cart, pose_pole, vel_cart, vel_pole])
+
+    #     # Use torch.bucketize() to find bin indices for each value
+    #     state_discretized = tuple(
+    #         torch.bucketize(obs_tensor[i], self.bins[i]) for i in range(len(required_keys))
+    #     )
+        
+    #     return state_discretized
+
+
+
+
+
     def discretize_state(self, obs: dict):
         """
-        Discretize the observation state using predefined bins.
+        Discretize the observation state.
 
         Args:
-            obs (dict): Observation dictionary.
+        obs (dict): Observation dictionary containing policy states.
 
         Returns:
-            Tuple[int, int, int, int]: Discretized state.
+            uple[pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]: Discretized state.
         """
-        required_keys = ['pose_cart', 'pose_pole', 'vel_cart', 'vel_pole']
-        obs_tensor = torch.tensor([obs[key] for key in required_keys])
 
-        # Use torch.bucketize() to find bin indices
-        state_discretized = tuple(
-            torch.bucketize(obs_tensor[i], self.bins[i]) for i in range(len(required_keys))
-        )
-        return state_discretized
+        # ========= put your code here =========#
+        # cart pose range : [-4.8 , 4.8]
+        # pole pose range : [-pi , pi]
+        # cart vel  range : [-inf , inf]
+        # pole vel range  : [-inf , inf]
+        # define number of value
+        pose_cart_bin = self.discretize_state_weight[0]
+        pose_pole_bin = self.discretize_state_weight[1]
+        vel_cart_bin = self.discretize_state_weight[2]
+        vel_pole_bin = self.discretize_state_weight[3]
+        # pose_cart_bin = 100
+        # pose_pole_bin = 720
+        # vel_cart_bin = 100
+        # vel_pole_bin = 100
+
+        # Clipping value
+        pose_cart_bound = 3
+        pose_pole_bound = float(np.deg2rad(24.0))
+        vel_cart_bound = 15
+        vel_pole_bound = 15
+
+        #get observation term from continuos space
+        pose_cart_raw, pose_pole_raw , vel_cart_raw , vel_pole_raw = obs['policy'][0, 0] , obs['policy'][0, 1] , obs['policy'][0, 2] , obs['policy'][0, 3]
+        pose_cart_clip = torch.clip(pose_cart_raw , -pose_cart_bound ,pose_cart_bound)
+        pose_pole_clip = torch.clip(pose_pole_raw , -pose_pole_bound ,pose_pole_bound)
+        vel_cart_clip = torch.clip(vel_cart_raw , -vel_cart_bound ,vel_cart_bound)
+        vel_pole_clip = torch.clip(vel_pole_raw , -vel_pole_bound ,vel_pole_bound)
+
+        device = pose_cart_clip.device
+
+            # linspace value
+        pose_cart_grid = torch.linspace(-pose_cart_bound , pose_cart_bound , pose_cart_bin , device=device)
+        pose_pole_grid = torch.linspace(-pose_pole_bound , pose_pole_bound , pose_pole_bin , device=device)
+        vel_cart_grid = torch.linspace(-vel_cart_bound , vel_cart_bound , vel_cart_bin , device=device)
+        vel_pole_grid = torch.linspace(-vel_pole_bound , vel_pole_bound , vel_pole_bin , device=device)
+
+            # digitalize to range
+        pose_cart_dig = torch.bucketize(pose_cart_clip,pose_cart_grid)
+        pose_pole_dig = torch.bucketize(pose_pole_clip,pose_pole_grid)
+        vel_cart_dig = torch.bucketize(vel_cart_clip,vel_cart_grid)
+        vel_pose_dig = torch.bucketize(vel_pole_clip,vel_pole_grid)
+
+        return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
 
     def get_discretize_action(self, obs_dis) -> int:
         """
@@ -124,11 +198,16 @@ class BaseAlgorithm():
 
         return action_tensor, action_idx  
 
-    def decay_epsilon(self, episode):
+    def decay_epsilon(self, total_episodes ):
         """
         Decay epsilon value to reduce exploration over time.
         """
-        self.epsilon = max(self.final_epsilon, self.epsilon * (self.epsilon_decay ** episode))
+        # self.epsilon = max(self.final_epsilon, self.epsilon * (self.epsilon_decay ** episode))
+        # self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
+
+
+        epsilon_decrease = (1.0 - self.final_epsilon) / total_episodes # Calculate how much to decrease each step
+        self.epsilon = max(self.final_epsilon, self.epsilon - epsilon_decrease)
 
     def save_q_value(self, path, filename):
         """
@@ -164,7 +243,7 @@ class BaseAlgorithm():
             json.dump(model_params, f)
 
             
-    def load_q_value(self, path, filename):
+    def load_model(self, path, filename):
         """
         Load model parameters from a JSON file.
 

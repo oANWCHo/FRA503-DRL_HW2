@@ -109,14 +109,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 5
+    num_of_action = 10
     action_range = [-2, 2]  # [min, max]
-    discretize_state_weight = [1, 0, 0, 0]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    discretize_state_weight = [4, 10, 2, 2]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
     learning_rate = 0.1
-    n_episodes = 100
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]
     start_epsilon = 1.0
-    epsilon_decay = 0.995 # reduce the exploration over time
-    final_epsilon = 0.1
+    epsilon_decay = 0.9996 # reduce the exploration over time
+    final_epsilon = 0.05
     discount = 0.99
 
     data = {
@@ -130,7 +130,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         "final_epsilon": final_epsilon,
         "discount": discount
     }
-
+    
     # Generate filename dynamically
     filename = (f"ac_{num_of_action}|"
                 f"ar_{'_'.join(map(str, action_range))}|"
@@ -200,7 +200,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     sum_reward = 0
                     print(agent.epsilon)
 
-                agent.decay_epsilon(episode)
+                agent.decay_epsilon(n_episodes)
             
             # Save Q-Learning agent
             Algorithm_name = "Q_Learning"

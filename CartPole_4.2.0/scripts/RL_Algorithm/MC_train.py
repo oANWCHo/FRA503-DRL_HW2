@@ -108,14 +108,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 2
-    action_range = [-1, 1]  # [min, max]
-    discretize_state_weight = [10, 10, 5, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    num_of_action = 10
+    action_range = [-2, 2]  # [min, max]
+    discretize_state_weight = [10, 20, 2, 2]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
     learning_rate = 0.1
-    n_episodes = 100
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]
     start_epsilon = 1.0
-    epsilon_decay = 0.995 # reduce the exploration over time
-    final_epsilon = 0.1
+    epsilon_decay = 0.9996 # reduce the exploration over time
+    final_epsilon = 0.05
     discount = 0.99
 
     data = {
@@ -167,31 +167,37 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 done = False
                 cumulative_reward = 0
 
+                agent.obs_hist = []
+                agent.action_hist = []
+                agent.reward_hist = []
+
                 while not done:
 
                     # agent stepping
                     action, action_idx = agent.get_action(obs)
-                    # print('action',action)
 
-                    # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
+
+                    agent.obs_hist.append(obs)
+                    agent.action_hist.append(action_idx)
+                    agent.reward_hist.append(reward.item())
 
                     reward_value = reward.item()
                     terminated_value = terminated.item() 
                     cumulative_reward += reward_value
-                    
-                    # editable agent update
-                    agent.update()  #edit here
 
                     done = terminated or truncated
                     obs = next_obs
-                
+
+                agent.update()  #edit here
                 sum_reward += cumulative_reward
+
                 if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
                     sum_reward = 0
                     print(agent.epsilon)
-                agent.decay_epsilon(episode)
+                    
+                agent.decay_epsilon(n_episodes)
             
             # Save MC agent
             Algorithm_name = "MC"

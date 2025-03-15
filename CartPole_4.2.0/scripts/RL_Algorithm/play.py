@@ -11,6 +11,8 @@ from omni.isaac.lab.app import AppLauncher
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from RL_Algorithm.Algorithm.Q_Learning import Q_Learning
+from RL_Algorithm.Algorithm.SARSA import SARSA
+from RL_Algorithm.Algorithm.MC import MC
 from tqdm import tqdm
 
 # add argparse arguments
@@ -84,17 +86,29 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ==================================================================== #
     # ========================= Can be modified ========================== #
 
-    num_of_action = None
-    action_range = [None, None]  # [min, max]
-    discretize_state_weight = [None, None, None, None]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = None
-    n_episodes = None
-    start_epsilon = None
-    epsilon_decay = None  # reduce the exploration over time
-    final_epsilon = None
-    discount = None
+    # hyperparameters
+    num_of_action = 10
+    action_range = [-2, 2]  # [min, max]
+    discretize_state_weight = [10, 20, 2, 2]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
+    learning_rate = 0.1
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]
+    start_epsilon = 1.0
+    epsilon_decay = 0.9996 # reduce the exploration over time
+    final_epsilon = 0.05
+    discount = 0.99
 
-    agent = Q_Learning(
+    # # Generate filename dynamically
+    # filename = (f"ac_{num_of_action}|"
+    #             f"ar_{'_'.join(map(str, action_range))}|"
+    #             f"dsw_{'_'.join(map(str, discretize_state_weight))}|"
+    #             f"lr_{learning_rate}|"
+    #             f"ep_{10000}|"
+    #             f"se_{start_epsilon}|"
+    #             f"ed_{epsilon_decay}|"
+    #             f"fe_{final_epsilon}|"
+    #             f"disc_{discount}.json").replace(" ", "")
+    
+    agent = MC(
         num_of_action=num_of_action,
         action_range=action_range,
         discretize_state_weight=discretize_state_weight,
@@ -105,10 +119,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         discount_factor=discount
     )
 
-    Algorithm_name = "Q_Learning"  
-    q_value_file = "name.json"
-    full_path = os.path.join("q_value", Algorithm_name)
-    agent.load_model(full_path, q_value_file)
+    filename = "ac_10|ar_-2_2|dsw_10_20_2_2|lr_0.1|ep_8000|se_1.0|ed_0.9996|fe_0.05|disc_0.99.json"
+            # Save Q-Learning agent
+    Algorithm_name = "MC"
+    # q_value_file = "name.json"
+    full_path = os.path.join("q_value/Stabilize", Algorithm_name)
+    agent.load_model(full_path, filename)
+    # Algorithm_name = "Q_Learning"  
+    # q_value_file = "name.json"
+    # full_path = os.path.join("q_value", Algorithm_name)
+    # agent.load_model(full_path, q_value_file)
 
     # reset environment
     obs, _ = env.reset()
