@@ -146,9 +146,66 @@ class BaseAlgorithm():
 
         return ( int(pose_cart_dig), int(pose_pole_dig), int(vel_cart_dig),  int(vel_pose_dig))
 
+    # def get_discretize_action(self, obs_dis) -> int:
+    #     """
+    #     Select an action using an epsilon-greedy policy.
+
+    #     Args:
+    #         obs_dis (tuple): Discretized observation.
+
+    #     Returns:
+    #         int: Chosen discrete action index.
+    #     """
+    #     # if self.control_type == ControlType.DOUBLE_Q_LEARNING :
+    #     #     if torch.rand(1).item() < self.epsilon:
+    #     #         return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+    #     #     else:
+    #     #         return int(torch.argmax(self.qa_values[obs_dis]).item() + torch.argmax(self.qb_values[obs_dis]).item()) # Exploit
+    #     if self.control_type == ControlType.DOUBLE_Q_LEARNING:
+    #         # if torch.rand(1).item() < self.epsilon:
+    #         #     return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+    #         # else:
+    #         #     # Ensure values are NumPy arrays before conversion
+    #         #     qa_numpy = np.array(self.qa_values[obs_dis], dtype=np.float32)
+    #         #     qb_numpy = np.array(self.qb_values[obs_dis], dtype=np.float32)
+
+    #         #     # Convert to PyTorch tensors properly
+    #         #     qa_tensor = torch.from_numpy(qa_numpy)
+    #         #     qb_tensor = torch.from_numpy(qb_numpy)
+
+    #         #     return int(torch.argmax(qa_tensor).item() + torch.argmax(qb_tensor).item())  # Exploit
+
+    #         qa_numpy = np.array(self.qa_values[obs_dis], dtype=np.float32)
+    #         qb_numpy = np.array(self.qb_values[obs_dis], dtype=np.float32)
+
+    #         # Convert to PyTorch tensors properly
+    #         qa_tensor = torch.from_numpy(qa_numpy)
+    #         qb_tensor = torch.from_numpy(qb_numpy)
+
+    #         action_idx = torch.argmax(qa_tensor + qb_tensor).item()
+    #         action_idx = max(0, min(action_idx, self.num_of_action - 1))  # Ensure action index is valid
+    #         return int(action_idx)
+
+    #     else:
+    #         if torch.rand(1).item() < self.epsilon:
+    #             return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+    #         else:
+    #             return int(torch.argmax(self.q_values[obs_dis]).item())  # Exploit
+
+    #     # else:
+    #     #     if torch.rand(1).item() < self.epsilon:
+    #     #         return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+    #     #     else:
+    #     #         # ตรวจสอบให้แน่ใจว่าเป็น NumPy array ก่อนแปลงเป็น PyTorch tensor
+    #     #         q_numpy = np.array(self.q_values[obs_dis], dtype=np.float32)
+    #     #         q_tensor = torch.from_numpy(q_numpy)
+
+    #     #         return int(torch.argmax(q_tensor).item())  # Exploit
+
+
     def get_discretize_action(self, obs_dis) -> int:
         """
-        Select an action using an epsilon-greedy policy.
+        Select an action using an epsilon-greedy policy for Double Q-Learning.
 
         Args:
             obs_dis (tuple): Discretized observation.
@@ -156,10 +213,39 @@ class BaseAlgorithm():
         Returns:
             int: Chosen discrete action index.
         """
-        if torch.rand(1).item() < self.epsilon:
-            return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+        if self.control_type == ControlType.DOUBLE_Q_LEARNING:
+            # Exploration: Choose a random action with probability epsilon
+            if torch.rand(1).item() < self.epsilon:
+                return torch.randint(0, self.num_of_action, (1,)).item()
+
+            # Exploitation: Use Double Q-Learning selection
+            else:
+                qa_numpy = np.array(self.qa_values[obs_dis], dtype=np.float32)
+                qb_numpy = np.array(self.qb_values[obs_dis], dtype=np.float32)
+
+                # Convert to PyTorch tensors
+                qa_tensor = torch.from_numpy(qa_numpy)
+                qb_tensor = torch.from_numpy(qb_numpy)
+
+                # Double Q-Learning action selection:
+                action_from_q1 = torch.argmax(qa_tensor).item()  # Best action from Q1
+                action_from_q2 = torch.argmax(qb_tensor).item()  # Best action from Q2
+
+                # Select the final action based on the maximum Q-value
+                best_action = action_from_q1 if qa_tensor[action_from_q1] >= qb_tensor[action_from_q2] else action_from_q2
+
+                # Ensure action index is within valid bounds
+                action_idx = max(0, min(best_action, self.num_of_action - 1))
+                return int(action_idx)
+
         else:
-            return torch.argmax(self.q_values[obs_dis]).item()  # Exploit
+            # Standard Q-learning with epsilon-greedy policy
+            if torch.rand(1).item() < self.epsilon:
+                return torch.randint(0, self.num_of_action, (1,)).item()  # Explore
+            else:
+                self.q_values[obs_dis] = torch.tensor(self.q_values[obs_dis], dtype=torch.float32)
+                return int(torch.argmax(self.q_values[obs_dis]).item())  # Exploit
+
 
     def mapping_action(self, action):
         """
@@ -186,18 +272,19 @@ class BaseAlgorithm():
             torch.Tensor, int: Scaled action tensor and chosen action index.
         """
         obs_dis = self.discretize_state(obs)
-        action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
+        # action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
+        action_idx = torch.tensor([self.get_discretize_action(obs_dis)], dtype=torch.int)
+    
+        action_value = self.mapping_action(action_idx.item())
 
-        action_scalar = action_idx.item() if action_idx.numel() == 1 else action_idx
-        action_value = self.mapping_action(action_scalar)
-
-        if isinstance(action_value, torch.Tensor):
-            action_tensor = action_value.view(1, 1)
-        else:
-            action_tensor = torch.tensor([[action_value]], dtype=torch.float32)
+        # if isinstance(action_value, torch.Tensor):
+        #     action_tensor = action_value.view(1, 1)
+        # else:
+        #     
+        action_tensor = torch.tensor([[action_value]])
 
         return action_tensor, action_idx  
-
+    
     def decay_epsilon(self, total_episodes ):
         """
         Decay epsilon value to reduce exploration over time.
@@ -205,7 +292,7 @@ class BaseAlgorithm():
         # self.epsilon = max(self.final_epsilon, self.epsilon * (self.epsilon_decay ** episode))
         # self.epsilon = max(self.final_epsilon, self.epsilon * self.epsilon_decay)
 
-
+        # if total_episodes >
         epsilon_decrease = (1.0 - self.final_epsilon) / total_episodes # Calculate how much to decrease each step
         self.epsilon = max(self.final_epsilon, self.epsilon - epsilon_decrease)
 

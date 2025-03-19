@@ -45,16 +45,26 @@ class Double_Q_Learning(BaseAlgorithm):
 
         This method applies the Double Q-Learning update rule to improve policy decisions by updating the Q-table.
         """
-        if np.random.rand() < 0.5:
-        # Update Q_A using Q_B
-            best_next_action = np.argmax(self.qa_values[next_state]) if next_state is not None else 0
-            q_next = self.qb_values[next_state][best_next_action] if next_state is not None else 0
-
-            self.qa_values[state][action] += self.lr * (reward + self.discount_factor * q_next - self.qa_values[state][action])
+        if next_state is None:
+            q_next = 0
         else:
-            # Update Q_B using Q_A
-            best_next_action = np.argmax(self.qb_values[next_state]) if next_state is not None else 0
-            q_next = self.qa_values[next_state][best_next_action] if next_state is not None else 0
-            
-            self.qb_values[state][action] += self.lr * (reward + self.discount_factor * q_next - self.qb_values[state][action])
+            if next_state not in self.qa_values:
+                self.qa_values[next_state] = np.zeros(self.num_of_action)
+            if next_state not in self.qb_values:
+                self.qb_values[next_state] = np.zeros(self.num_of_action)
+
+            if np.random.rand() < 0.5:
+                # Update Q_A using Q_B
+                best_next_action = np.argmax(self.qa_values[next_state])
+                q_next = self.qb_values[next_state][best_next_action]
+                self.qa_values[state][action] += self.lr * (reward + self.discount_factor * q_next - self.qa_values[state][action])
+            else:
+                # Update Q_B using Q_A
+                best_next_action = np.argmax(self.qb_values[next_state])
+                q_next = self.qa_values[next_state][best_next_action]
+                self.qb_values[state][action] += self.lr * (reward + self.discount_factor * q_next - self.qb_values[state][action])
+        
+        #อัปเดตค่า Q-Table 
+        self.q_values[state] = (self.qa_values[state] + self.qb_values[state]) / 2
+
         

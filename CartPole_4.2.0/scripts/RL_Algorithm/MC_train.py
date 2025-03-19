@@ -13,6 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 from RL_Algorithm.Algorithm.MC import MC
 from tqdm import tqdm
 import torch
+import wandb
+
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -108,15 +110,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 10
-    action_range = [-2, 2]  # [min, max]
-    discretize_state_weight = [10, 20, 2, 2]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
-    learning_rate = 0.1
-    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]
+    num_of_action = 11
+    action_range = [-16.0, 16.0]
+    discretize_state_weight = [8, 10, 4, 4]   # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    learning_rate = 0.3
+    # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3] * 2
+    n_episodes = 5000
     start_epsilon = 1.0
-    epsilon_decay = 0.9996 # reduce the exploration over time
-    final_epsilon = 0.05
-    discount = 0.99
+    epsilon_decay =  0.9995  # ให้ Exploration นานขึ้น
+    final_epsilon = 0.01
+    discount = 0.95  # ให้ agent สนใจอนาคตมากขึ้น
+
 
     data = {
         "num_of_action": num_of_action,
@@ -129,18 +133,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         "final_epsilon": final_epsilon,
         "discount": discount
     }
-    
-    # Generate filename dynamically
-    filename = (f"ac_{num_of_action}|"
-                f"ar_{'_'.join(map(str, action_range))}|"
-                f"dsw_{'_'.join(map(str, discretize_state_weight))}|"
-                f"lr_{learning_rate}|"
-                f"ep_{n_episodes}|"
-                f"se_{start_epsilon}|"
-                f"ed_{epsilon_decay}|"
-                f"fe_{final_epsilon}|"
-                f"disc_{discount}.json").replace(" ", "")
-    
+
+    task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
+    Algorithm_name = "MC"
+
     # editable agent
     agent = MC(
         num_of_action=num_of_action,
@@ -153,10 +149,21 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         discount_factor=discount
     )
 
+    config = {
+        'architecture': 'HW2_DRL', #ชื่อโปรเจกต์เป็น "simpleff"
+        'name' : 'MC'
+    }
+    run = wandb.init(
+        project='HW2_DRL',
+        config=config,
+    )
+
     # reset environment
     obs, _ = env.reset()
     timestep = 0
     sum_reward = 0
+    sum_count = 0
+
     # simulate environment
     while simulation_app.is_running():
         # run everything in inference mode
@@ -166,6 +173,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 obs, _ = env.reset()
                 done = False
                 cumulative_reward = 0
+                count = 0
 
                 agent.obs_hist = []
                 agent.action_hist = []
@@ -186,24 +194,32 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     terminated_value = terminated.item() 
                     cumulative_reward += reward_value
 
+                    count += 1
+                    run.log({"epsilon": agent.epsilon,
+                            "Episode": episode})
+                    
                     done = terminated or truncated
                     obs = next_obs
 
                 agent.update()  #edit here
                 sum_reward += cumulative_reward
+                sum_count += count
 
                 if episode % 100 == 0:
                     print("avg_score: ", sum_reward / 100.0)
-                    sum_reward = 0
                     print(agent.epsilon)
+                    run.log({"avg_count_per_ep":sum_count / 100.0,
+                             "avg_reward":sum_reward / 100.0})
+                    sum_reward = 0
+                    sum_count = 0
+                    
+                   # Save Q-Learning agent
+                    q_value_file = f"{Algorithm_name}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}.json"
+                    full_path = os.path.join(f"q_value/{task_name}", Algorithm_name)
+                    agent.save_q_value(full_path, q_value_file)
                     
                 agent.decay_epsilon(n_episodes)
             
-            # Save MC agent
-            Algorithm_name = "MC"
-            # q_value_file = "name.json"
-            full_path = os.path.join("q_value/Stabilize", Algorithm_name)
-            agent.save_q_value(full_path, filename)
             
         if args_cli.video:
             timestep += 1
@@ -220,6 +236,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
 if __name__ == "__main__":
     # run the main function
-    main()
+    main() # type: ignore
     # close sim app
     simulation_app.close()

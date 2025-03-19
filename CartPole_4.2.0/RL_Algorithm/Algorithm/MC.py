@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 from RL_Algorithm.RL_base import BaseAlgorithm, ControlType
 import torch
+from collections import defaultdict
 class MC(BaseAlgorithm):
     def __init__(
             self,
@@ -39,47 +40,54 @@ class MC(BaseAlgorithm):
             discount_factor=discount_factor,
         )
         
-    def update(
-        self,
-        
-    ):
+
+
+
+    def update(self):
         """
-        Update Q-values using Monte Carlo.
-
-        This method applies the Monte Carlo update rule to improve policy decisions by updating the Q-table.
+        อัปเดตค่า Q-values โดยใช้ Monte Carlo (First-Visit MC)
         """
-        return_sum = 0 
+        returns_sum = defaultdict(lambda: torch.zeros(self.num_of_action, dtype=torch.float32))
+        N = defaultdict(lambda: torch.zeros(self.num_of_action, dtype=torch.float32))
 
-        
-        # Update First Visit Monte Carlo
-        for t in reversed(range(len(self.obs_hist))):
+        for episode_idx in reversed(range(len(self.obs_hist))):
+            # print(f"\n[DEBUG] Episode {episode_idx}")
 
-            state_tensor = self.obs_hist[t].get('policy')  # แก้ตรงนี้ให้เป็นคีย์ที่ถูกต้อง
+            # **1. ดึงค่า state และแปลงจาก dict**
+            state_tensor = self.obs_hist[episode_idx].get('policy', None)
+            if state_tensor is None:
+                # print(f"[ERROR] Episode {episode_idx}: Missing 'policy' in obs_hist!")
+                continue
+            states = [tuple(torch.round(state_tensor.flatten(), decimals=2).tolist())]  # **ต้องอยู่ใน list**
 
-            # แปลง Tensor → Numpy → Tuple เพื่อให้เป็น hashable key
-            state = tuple(state_tensor.flatten().tolist())  
-            action = self.action_hist[t]
-            reward = self.reward_hist[t]
-            return_sum = self.discount_factor * return_sum + reward  # Compute return
-            
-            # print([state,action,reward])
-             # ตรวจสอบว่าค่าของ state มีอยู่ใน Q-table หรือไม่
-            if state not in self.q_values:
-                self.q_values[state] = torch.zeros(self.num_of_action)
-                self.n_values[state] = torch.zeros(self.num_of_action)
+            # **2. แปลง Action จาก Tensor -> List**
+            actions = self.action_hist[episode_idx]
+            if isinstance(actions, torch.Tensor):
+                actions = actions.tolist()
 
-            # ตรวจสอบเฉพาะค่าที่เป็น `Tensor` ก่อนใช้ `torch.equal()`
-            def tensor_equal(tensor1, tensor2):
-                
-                if isinstance(tensor2, dict) and 'policy' in tensor2:
-                    tensor2 = tensor2.get('policy')  # ดึงค่าถ้าเป็น dict
+            # **3. แปลง Reward จาก Float -> List**
+            rewards = self.reward_hist[episode_idx]
+            if isinstance(rewards, float):
+                rewards = [rewards]  # **ต้องเป็น list**
 
-                # print([tensor1,tensor2])
-                return isinstance(tensor2, torch.Tensor) and torch.equal(tensor1, tensor2)
-        
-            if not any(tensor_equal(state_tensor, s) for s in self.obs_hist[:t]):  # First-visit MC update
-                # print("New!")
-                self.n_values[state][action] += 1
-                self.q_values[state][action] += (return_sum - self.q_values[state][action]) / self.n_values[state][action]
-            # else:
-            #     # print("no")
+            # ตรวจสอบว่า States, Actions และ Rewards มีขนาดตรงกัน
+            if len(states) != len(actions) or len(actions) != len(rewards):
+                # print(f"[ERROR] Episode {episode_idx}: Mismatched Data Sizes! (States: {len(states)}, Actions: {len(actions)}, Rewards: {len(rewards)})")
+                continue
+
+            # คำนวณ Discount Factor
+            discounts = torch.tensor([self.discount_factor**i for i in range(len(rewards))], dtype=torch.float32)
+            visited_states_actions = set()
+
+            for t in range(len(states)):
+                state = states[t]
+                action = actions[t]
+                G = sum(torch.tensor(rewards[t:]) * discounts[:len(rewards)-t])  # คำนวณ Return
+
+                if (state, action) not in visited_states_actions:
+                    visited_states_actions.add((state, action))
+                    N[state][action] += 1
+                    returns_sum[state][action] += G
+                    self.q_values[state][action] = returns_sum[state][action] / N[state][action]
+
+                    # print(f"[DEBUG] Updated Q[{state}, {action}] = {self.q_values[state][action]}")
