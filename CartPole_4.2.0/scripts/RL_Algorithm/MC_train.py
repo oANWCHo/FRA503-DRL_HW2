@@ -111,15 +111,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # hyperparameters
     num_of_action = 11
-    action_range = [-16.0, 16.0]
-    discretize_state_weight = [8, 10, 4, 4]   # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
+    action_range = [-16.0, 16.0]  # [min, max]
+    discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
     learning_rate = 0.3
-    # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3] * 2
-    n_episodes = 5000
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
+    # n_episodes = 10000
     start_epsilon = 1.0
-    epsilon_decay =  0.9995  # ให้ Exploration นานขึ้น
+    epsilon_decay = 0.997 # reduce the exploration over time
     final_epsilon = 0.01
-    discount = 0.95  # ให้ agent สนใจอนาคตมากขึ้น
+    discount = 0.50
 
 
     data = {
@@ -186,13 +186,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     next_obs, reward, terminated, truncated, _ = env.step(action)
 
-                    agent.obs_hist.append(obs)
-                    agent.action_hist.append(action_idx)
-                    agent.reward_hist.append(reward.item())
-
                     reward_value = reward.item()
                     terminated_value = terminated.item() 
                     cumulative_reward += reward_value
+
+                    agent.obs_hist.append(agent.discretize_state(obs))
+                    agent.action_hist.append(action_idx)
+                    agent.reward_hist.append(reward_value)
 
                     count += 1
                     run.log({"epsilon": agent.epsilon,
@@ -233,6 +233,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # close the simulator
     env.close()
+    wandb.finish()
 
 if __name__ == "__main__":
     # run the main function

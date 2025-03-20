@@ -37,12 +37,17 @@ class BaseAlgorithm():
         self.action_range = action_range
 
         # Define bins as torch tensors for discretization
-        self.bins = [
-            torch.linspace(-3, 3, discretize_state_weight[0]),  # pose_cart bins
-            torch.linspace(-10, 10, discretize_state_weight[1]),  # pose_pole bins
-            torch.linspace(-2, 2, discretize_state_weight[2]),  # vel_cart bins
-            torch.linspace(-2, 2, discretize_state_weight[3])  # vel_pole bins
-        ]
+        # self.bins = [
+        #     # torch.linspace(-3, 3, discretize_state_weight[0]),  # pose_cart bins
+        #     # torch.linspace(-10, 10, discretize_state_weight[1]),  # pose_pole bins
+        #     # torch.linspace(-2, 2, discretize_state_weight[2]),  # vel_cart bins
+        #     # torch.linspace(-2, 2, discretize_state_weight[3])  # vel_pole bins
+        #     torch.linspace(-3, 3, discretize_state_weight[0]),  # pose_cart bins
+        #     torch.linspace(-20, 20, discretize_state_weight[1]),  # pose_pole bins
+        #     torch.linspace(-10, 10, discretize_state_weight[2]),  # vel_cart bins
+        #     torch.linspace(-10, 10, discretize_state_weight[3])  # vel_pole bins
+        # ]
+        
         self.discretize_state_weight =  discretize_state_weight
 
         self.q_values = defaultdict(lambda: torch.zeros(self.num_of_action))
@@ -261,6 +266,30 @@ class BaseAlgorithm():
         action_continuous = action_min + (action / (self.num_of_action - 1)) * (action_max - action_min)
         return torch.tensor(action_continuous, dtype=torch.float32)
 
+    # def get_action(self, obs) -> torch.Tensor:
+    #     """
+    #     Get action based on epsilon-greedy policy.
+
+    #     Args:
+    #         obs (dict): The observation state.
+
+    #     Returns:
+    #         torch.Tensor, int: Scaled action tensor and chosen action index.
+    #     """
+    #     obs_dis = self.discretize_state(obs)
+    #     # action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
+    #     action_idx = torch.tensor([self.get_discretize_action(obs_dis)], dtype=torch.int)
+    
+    #     action_value = self.mapping_action(action_idx.item())
+
+    #     # if isinstance(action_value, torch.Tensor):
+    #     #     action_tensor = action_value.view(1, 1)
+    #     # else:
+    #     #     
+    #     action_tensor = torch.tensor([[action_value]])
+
+    #     return action_tensor, action_idx  
+
     def get_action(self, obs) -> torch.Tensor:
         """
         Get action based on epsilon-greedy policy.
@@ -273,17 +302,18 @@ class BaseAlgorithm():
         """
         obs_dis = self.discretize_state(obs)
         # action_idx = torch.tensor(self.get_discretize_action(obs_dis), dtype=torch.int)
-        action_idx = torch.tensor([self.get_discretize_action(obs_dis)], dtype=torch.int)
+        action_idx = self.get_discretize_action(obs_dis)
+        action_tensor = self.mapping_action(action_idx)
     
-        action_value = self.mapping_action(action_idx.item())
+
 
         # if isinstance(action_value, torch.Tensor):
         #     action_tensor = action_value.view(1, 1)
         # else:
         #     
-        action_tensor = torch.tensor([[action_value]])
+        # action_tensor = torch.tensor([[action_value]])
 
-        return action_tensor, action_idx  
+        return action_tensor.unsqueeze(0).unsqueeze(0), action_idx  
     
     def decay_epsilon(self, total_episodes ):
         """

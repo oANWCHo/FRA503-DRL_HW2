@@ -115,8 +115,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     action_range = [-16.0, 16.0]  # [min, max]
     discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
     learning_rate = 0.3
-    # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
-    n_episodes = 200
+    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
     start_epsilon = 1.0
     epsilon_decay = 0.997 # reduce the exploration over time
     final_epsilon = 0.01
@@ -151,7 +150,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     config = {
         'architecture': 'HW2_DRL', #ชื่อโปรเจกต์เป็น "simpleff"
-        'name' : 'DQ_learn'
     }
     run = wandb.init(
         project='HW2_DRL',
@@ -234,6 +232,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # close the simulator
     env.close()
+    wandb.finish()
 
 if __name__ == "__main__":
     # run the main function

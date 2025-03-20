@@ -235,6 +235,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # close the simulator
     env.close()
+    wandb.finish()
+
 
 if __name__ == "__main__":
     # run the main function
