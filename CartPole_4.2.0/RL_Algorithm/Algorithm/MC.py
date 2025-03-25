@@ -118,6 +118,9 @@ class MC(BaseAlgorithm):
                     self.q_values[state][action] = ((self.q_values[state][action] * (self.n_values[state][action])) + return_sum) / (self.n_values[state][action] + 1)
                     # self.q_values[state][action] += (return_sum - self.q_values[state][action]) / self.n_values[state][action]
 
+
+
+
         # def update(self, state_history, action_history, reward_history):
         #     """
         #     Update Q-values using Monte Carlo.
