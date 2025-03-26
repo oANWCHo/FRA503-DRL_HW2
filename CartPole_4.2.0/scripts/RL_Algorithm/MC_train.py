@@ -110,16 +110,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # ========================= Can be modified ========================== #
 
     # hyperparameters
-    num_of_action = 11
+    num_of_action = 5
     action_range = [-16.0, 16.0]  # [min, max]
     discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
-    learning_rate = 0.1
-    n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
-    # n_episodes = 10000
+    learning_rate = 0.3
+    #n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
+    n_episodes = 10000
     start_epsilon = 1.0
     epsilon_decay = 0.997 # reduce the exploration over time
     final_epsilon = 0.01
-    discount = 0.5
+    discount = 0.1
 
 
     data = {
@@ -213,7 +213,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     sum_reward = 0
                     sum_count = 0
                     
-                   # Save Q-Learning agent
+                   # Save MC agent
                     q_value_file = f"{Algorithm_name}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}_{discount}_{learning_rate}.json"
                     full_path = os.path.join(f"q_value/{task_name}", Algorithm_name)
                     agent.save_q_value(full_path, q_value_file)

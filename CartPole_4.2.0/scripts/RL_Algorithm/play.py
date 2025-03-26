@@ -89,8 +89,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # hyperparameters
     num_of_action = 11
-    action_range = [-15, 15]  # [min, max]
-    discretize_state_weight = [6, 20, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
+    action_range = [-16 16]  # [min, max]
+    discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
     learning_rate = 0.3
     # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
     n_episodes = 10000

@@ -112,7 +112,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # hyperparameters
     num_of_action = 11
     action_range = [-16.0, 16.0]  # [min, max]
-    discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
+    discretize_state_weight = [3, 7, 1, 5]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int] [10, 20, 10, 10]
     learning_rate = 0.1
     n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
     #n_episodes = 
@@ -177,11 +177,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 while not done:
 
                     state = agent.discretize_state(obs)
-
                     # agent stepping
                     action, action_idx = agent.get_action(obs)
                     # print('action',action)
-
                     # env stepping
                     next_obs, reward, terminated, truncated, _ = env.step(action)
 
