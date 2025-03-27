@@ -93,11 +93,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
     learning_rate = 0.1
     # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
-    n_episodes = 100
-    start_epsilon = 0
-    epsilon_decay = 0 # reduce the exploration over time
-    final_epsilon = 0
-    discount = 0.9
+    n_episodes = 10000
+    start_epsilon = 1.0
+    epsilon_decay = 0.997 # reduce the exploration over time
+    final_epsilon = 0.01
+    discount = 0.5
     
     # agent = MC(
     #     num_of_action=num_of_action,
@@ -176,6 +176,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
                     done = terminated or truncated
                     obs = next_obs
+                    
+                agent.decay_epsilon(n_episodes)
+
         
 
         if args_cli.video:
