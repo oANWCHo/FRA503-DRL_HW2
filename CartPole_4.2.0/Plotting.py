@@ -77,6 +77,7 @@ def plot_pole_and_vel_cart(q_values, discretize_state_weight, pose_pole_bound, v
     ax.set_ylabel('Velocity Cart')
     ax.set_zlabel('Q-value')
     ax.set_title('3D Surface Plot of Q-values (Pose Pole vs Velocity Cart)')
+    # ax.set_title(Algorithm_name,episode,discount,learning_rate)
 
     ax.set_zlim(0, 0.1)
     ax.set_xticks(np.linspace(pose_pole_bound[0], pose_pole_bound[1], discretize_state_weight[1]))  # X-axis: pose_pole
@@ -101,10 +102,10 @@ learning_rate = 0.3
 start_epsilon = 0
 epsilon_decay = 0 # reduce the exploration over time
 final_epsilon = 0
-discount = 0.90
+discount = 0.9
     
 task_name =  "Stabilize" # Stabilize, SwingUp
-Algorithm_name = "MC"  
+Algorithm_name = "Double_Q_Learning"  
 
 episode = 10800 # Edit here to match an episode on the json file
     
@@ -120,5 +121,5 @@ with open(json_file_path, 'r') as f:
     q_values = data["q_values"]
 
 # Call the function with your file path
-plot_pose_cart_and_pole(q_values, discretize_state_weight, pose_cart_bound, pose_pole_bound)
-# plot_pole_and_vel_cart(q_values, discretize_state_weight, pose_pole_bound, vel_cart_bound)
+# plot_pose_cart_and_pole(q_values, discretize_state_weight, pose_cart_bound, pose_pole_bound)
+plot_pole_and_vel_cart(q_values, discretize_state_weight, pose_pole_bound, vel_cart_bound)
