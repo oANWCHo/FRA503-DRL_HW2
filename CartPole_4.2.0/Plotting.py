@@ -102,7 +102,7 @@ learning_rate = 0.3
 start_epsilon = 0
 epsilon_decay = 0 # reduce the exploration over time
 final_epsilon = 0
-discount = 0.9
+discount = 0.5
     
 task_name =  "Stabilize" # Stabilize, SwingUp
 Algorithm_name = "Double_Q_Learning"  
