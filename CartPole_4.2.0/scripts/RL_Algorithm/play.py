@@ -89,15 +89,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # hyperparameters
     num_of_action = 11
-    action_range = [-16 16]  # [min, max]
+    action_range = [-16.0,16.0]  # [min, max]
     discretize_state_weight = [5, 11, 3, 3]  # [pose_cart:int, pose_pole:int, vel_cart:int, vel_pole:int]
-    learning_rate = 0.3
+    learning_rate = 0.1
     # n_episodes = num_of_action * discretize_state_weight[0] * discretize_state_weight[1] * discretize_state_weight[2] * discretize_state_weight[3]*2
-    n_episodes = 10000
+    n_episodes = 100
     start_epsilon = 0
     epsilon_decay = 0 # reduce the exploration over time
     final_epsilon = 0
-    discount = 0.50
+    discount = 0.9
     
     # agent = MC(
     #     num_of_action=num_of_action,
@@ -144,7 +144,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     task_name = str(args_cli.task).split('-')[0]  # Stabilize, SwingUp
     Algorithm_name = "Q_Learning"  
 
-    episode = 26800 #Edit here to match a episode on json file
+    episode = 100 #Edit here to match a episode on json file
     
     q_value_file = f"{Algorithm_name}_{episode}_{num_of_action}_{action_range[1]}_{discretize_state_weight[0]}_{discretize_state_weight[1]}_{discount}_{learning_rate}.json"
     print(q_value_file) #Verify that correct json
